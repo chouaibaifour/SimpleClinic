@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer
 {
-    internal class clsParameters
+    static class clsDataAccessSettings
     {
+        public static string connectionString = "Server=.;Database=ContactsDB;User Id=sa;Password=123456";
     }
 }
