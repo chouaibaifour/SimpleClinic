@@ -9,5 +9,11 @@ namespace DataAccessLayer
     static class clsDataAccessSettings
     {
         public static string connectionString = "Server=.;Database=ContactsDB;User Id=sa;Password=123456";
+
+        public static void PrintExecptionError(Exception ex)
+        {
+            Console.WriteLine("Error : " + ex.Message);
+            Console.ReadKey();
+        }
     }
 }
