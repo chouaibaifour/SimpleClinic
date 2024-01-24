@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsParameters.cs" />
+    <Compile Include="clsPatientDataAccess.cs" />
     <Compile Include="clsPersonDataAccess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
