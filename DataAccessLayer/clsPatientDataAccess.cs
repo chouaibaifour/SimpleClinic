@@ -53,46 +53,50 @@ namespace DataAccessLayer
             return PersonID;
         }
 
-        static public bool GetPatientByID(ref int PatientID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref  clsPersonDataAccess.enGender Gender, ref string PhoneNumber, ref string Email, ref string Address)
+        static public bool GetPatientByID(ref int PatientID, ref int PersonID)
         {
-            int PersonID = PatientToPerson(@"PatientID = "+PatientID.ToString());
+            bool isFound = false;
 
-                if (PersonID>0)
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
+            string query = @"SELECT PatientID, PersonID FROM Patients WHERE PersonID = @PersonID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@PersonID", PersonID);
+
+            try
+            {
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+
+                if (reader.Read())
                 {
-                    if (clsPersonDataAccess.GetPersonByID(ref PersonID, ref FirstName, ref LastName, ref DateOfBirth,
-                        ref Gender, ref PhoneNumber, ref Email, ref Address)) 
+                    // the Person Was Successfully Found
 
-                       return true; // the Patient Was Successfully Found
+                    isFound = true;
 
-                    else 
+                    PersonID = (int)reader["PersonID"];
 
-                        return false;
+                    PatientID = (int)reader["PatientID"];
 
                 }
-            return false;
-
-        }
-
-        static public bool GetPatientByEmail(ref int PatientID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref clsPersonDataAccess.enGender Gender, ref string PhoneNumber, ref string Email, ref string Address)
-        {
-            int PersonID = PatientToPerson(@"PatientID = " + Email.ToString());
-
-            if (PersonID > 0)
-            {
-                if (clsPersonDataAccess.GetPersonByID(ref PersonID, ref FirstName, ref LastName, ref DateOfBirth,
-                    ref Gender, ref PhoneNumber, ref Email, ref Address))
-
-                    return true; // the Patient Was Successfully Found
-
                 else
+                    isFound = false;
+                reader.Close();
 
-                    return false;
 
             }
-            return false;
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
 
+            return isFound;
 
         }
 
@@ -144,50 +148,28 @@ namespace DataAccessLayer
 
         }
 
-        static public bool UpdatePatient(int PatientID, string FirstName, string LastName, DateTime DateOfBirth,
+        static public bool UpdatePatient(int PatientID,int PersonID, string FirstName, string LastName, DateTime DateOfBirth,
             clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address)
         {
-            int PersonID = PatientToPerson(@"PatientID = " + PatientID.ToString());
+            int RowsAffected = -1;
+            // this function returns true if Rows affected > 0 or false if no RowsAffected
 
-            if (PersonID > 0)
-            {
-                if (clsPersonDataAccess.UpdatePerson( PersonID,  FirstName,  LastName,  DateOfBirth,
-                     Gender,  PhoneNumber,Password,  Email,  Address))
-
-                    return true; // the Patient Was Successfully Found
-
-                else
-
-                    return false;
-
-            }
-            return false;
-        }
-
-        static public bool DeletePatient(int PatientID)
-        {
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
-            // this fuction will returns true when RowsAffected > 0 and flase if not 
-
-            bool IsDeleted = false;
-            int PersonID = PatientToPerson(@"PatientID = " + PatientID.ToString());
-
-            string query = @"DELETE Patients
-                                WHERE PatientID=@PatientID;";
+            string query = @"UPDATE Persons
+                            SET PersonID = @PersonID                            
+                            WHERE PersonID = @PersonID;";
 
             SqlCommand command = new SqlCommand(query, connection);
 
-            command.Parameters.AddWithValue("@PatientID", PatientID);
+
+            command.Parameters.AddWithValue("@PersonID", PersonID);
 
             try
             {
                 connection.Open();
+                RowsAffected = command.ExecuteNonQuery();
 
-                if(command.ExecuteNonQuery()>0)
-                {
-                IsDeleted = clsPersonDataAccess.DeletePerson(PersonID);
-                }
             }
             catch (Exception ex)
             {
@@ -198,7 +180,46 @@ namespace DataAccessLayer
                 connection.Close();
             }
 
-            return IsDeleted;
+            return (RowsAffected > 0)
+                     && 
+                    clsPersonDataAccess.UpdatePerson(PersonID,FirstName,LastName,DateOfBirth,Gender,PhoneNumber,Password,Email,Address);
+
+        }
+
+        static public bool DeletePatient(int PatientID,int PersonID)
+        {
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
+
+            // this fuction will returns true when RowsAffected > 0 and flase if not 
+
+            int RowsAffected = 0;
+
+            string query = @"DELETE Patients
+                                WHERE PatientID=@PatientID;
+                            DELETE Persons
+                                WHERE PersonID=@PersonID;";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@PersonID", PersonID);
+            command.Parameters.AddWithValue("@PatientID", PatientID);
+
+            try
+            {
+                connection.Open();
+
+                RowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return (RowsAffected > 0);
 
         }
 
