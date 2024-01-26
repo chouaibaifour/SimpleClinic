@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -10,14 +11,14 @@ namespace DataAccessLayer
 {
     static public class clsDoctorDataAccess
     {
-        static public int DoctorToPerson(string Condition)
+        static public int Person(int DoctorID)
         {
             int PersonID = -1;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-            string query = @"SELECT PersonID FROM Doctors WHERE  @Condition";
+            string query = @"SELECT PersonID FROM Doctors WHERE  DoctorID = @DoctorID";
 
             SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@Condition", Condition);
+            command.Parameters.AddWithValue("@DoctorID", DoctorID);
 
             try
             {
@@ -50,17 +51,13 @@ namespace DataAccessLayer
             return PersonID;
         }
 
-        static public bool GetDoctorByID(ref int DoctorID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref clsPersonDataAccess.enGender Gender, ref string PhoneNumber, ref string Email, ref string Address , ref string Specialization)
+        static public bool GetDoctorByID(ref int DoctorID,ref int PersonID,  ref string Specialization)
         {
             bool isFound = false;
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-            string query = @"SELECT  Persons.FirstName, Persons.LastName, Persons.DateOfBirth, Persons.Gender , Persons.PhoneNumber,
-                                         Persons.Email, Persons.Password, Persons.Address, Doctors.Specialization
-                                              FROM  Doctors INNER JOIN
-                                                     Persons ON Doctors.PersonID = Persons.PersonID
-                                                         where DoctorID = @DoctorID ";
+            string query = @"SELECT  PatientID, PersonID, Specialization  FROM Docotrs                                         
+                                        WHERE DoctorID = @DoctorID ";
 
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@DoctorID", DoctorID);
@@ -80,26 +77,7 @@ namespace DataAccessLayer
 
                     DoctorID = (int)reader["DoctorID"];
 
-                    FirstName = (string)reader["FirstName"];
-
-                    LastName = (string)reader["LastName"];
-
-                    DateOfBirth = (DateTime)reader["DateOfBirth"];
-
-                    Gender = (enGender)reader["Gender"];
-
-                    PhoneNumber = (string)reader["PhoneNumber"];
-
-                    Email = (string)reader["Email"];
-
-                    if (reader["Address"] != DBNull.Value)
-                    {
-                        Address = (string)reader["Address"];
-                    }
-                    else
-                    {
-                        Address = "";
-                    }
+                    PersonID = (int)reader["PersonID"];
 
                     Specialization = (string)reader["Specialization"];
                     
@@ -127,105 +105,25 @@ namespace DataAccessLayer
 
         }
 
-        static public bool GetPatientByEmail(ref int DoctorID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref clsPersonDataAccess.enGender Gender, ref string PhoneNumber, ref string Email, ref string Address, ref string Specialization)
-        {
-            bool isFound = false;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-            string query = @"SELECT  Persons.FirstName, Persons.LastName, Persons.DateOfBirth, Persons.Gender , Persons.PhoneNumber,
-                                         Persons.Email, Persons.Password, Persons.Address, Doctors.Specialization
-                                              FROM  Doctors INNER JOIN Persons ON Doctors.PersonID = Persons.PersonID
-                                                         WHERE DoctorID = @DoctorID ";
-
-            SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@DoctorID", DoctorID);
-
-            try
-            {
-                connection.Open();
-
-                SqlDataReader reader = command.ExecuteReader();
-
-
-                if (reader.Read())
-                {
-                    // the Person Was Successfully Found
-
-                    isFound = true;
-
-                    DoctorID = (int)reader["DoctorID"];
-
-                    FirstName = (string)reader["FirstName"];
-
-                    LastName = (string)reader["LastName"];
-
-                    DateOfBirth = (DateTime)reader["DateOfBirth"];
-
-                    Gender = (enGender)reader["Gender"];
-
-                    PhoneNumber = (string)reader["PhoneNumber"];
-
-                    Email = (string)reader["Email"];
-
-                    if (reader["Address"] != DBNull.Value)
-                    {
-                        Address = (string)reader["Address"];
-                    }
-                    else
-                    {
-                        Address = "";
-                    }
-
-                    Specialization = (string)reader["Specialization"];
-
-
-                }
-                else
-                    isFound = false;
-                reader.Close();
-
-
-            }
-            catch (Exception ex)
-            {
-                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-
-
-            return isFound;
-
-
-        }
-
-        static public int AddNewDoctor(string FirstName, string LastName, DateTime DateOfBirth,
-            clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address, string Specialization)
+        static public int AddNewDoctor(int PersonID, string Specialization)
         {
             // the function will returns PatientID or -1 if not 
-            int PersonID = clsPersonDataAccess.AddNewPerson(FirstName, LastName, DateOfBirth, Gender,
-                PhoneNumber, Password, Email, Address);
-
-            if (PersonID < 1)
-                return -1;
 
             int DoctorID = -1;
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
-            string query = @"INSERT INTO Patients(PersonID,Specializition)
-                            VALUES
-                            (@PersonID,Specialization);
-                               SELECT SCOPE_IDENTITY(); ";
+            string query = @"
+                                INSERT INTO Doctors(PersonID,Specializition)
+                                    VALUES
+                                  (@PersonID,@Specialization);
+                                         SELECT SCOPE_IDENTITY(); ";
 
             SqlCommand command = new SqlCommand(query, connection);
 
-            command.Parameters.AddWithValue("@PersonID", PersonID);
+
             command.Parameters.AddWithValue("@Specialization", Specialization);
+            command.Parameters.AddWithValue("@PersonID", PersonID);
 
             try
             {
@@ -252,58 +150,153 @@ namespace DataAccessLayer
 
         }
 
-        static public bool UpdateDoctor(int DoctorID, string FirstName, string LastName, DateTime DateOfBirth,
-           clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address, string Specialization)
+        static public bool UpdateDoctor(int DoctorID, int PersonID, string Specialization)
         {
-            int PersonID = DoctorToPerson(@"DoctorID = " + DoctorID.ToString());
 
+            int RowsAffected = -1;
+            // this function returns true if Rows affected > 0 or false if no RowsAffected
 
-                int RowsAffected = -1;
-                // this function returns true if Rows affected > 0 or false if no RowsAffected
-            if (PersonID > 0)
-            {
-                if (clsPersonDataAccess.UpdatePerson(PersonID, FirstName, LastName, DateOfBirth,
-                    Gender, PhoneNumber, Password, Email, Address)) { 
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
-                
-
-                SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-
-                string query = @"UPDATE Persons
+            string query = @"UPDATE Doctors
                             SET Specialization = @Specialization,
-                            WHERE PersonID = @PersonID;";
+                            PersonID = @PersonID
+                            WHERE DoctorID = @DoctorID;";
 
-                SqlCommand command = new SqlCommand(query, connection);
+            SqlCommand command = new SqlCommand(query, connection);
 
 
-                command.Parameters.AddWithValue("@PersonID", PersonID);
+            command.Parameters.AddWithValue("@PersonID", PersonID);
 
-                command.Parameters.AddWithValue("@Specialization", Specialization);
+            command.Parameters.AddWithValue("@DoctorID", DoctorID);
 
-                
+            command.Parameters.AddWithValue("@Specialization", Specialization);
 
-                try
-                {
-                    connection.Open();
-                    RowsAffected = command.ExecuteNonQuery();
+            try
+            {
+                connection.Open();
 
-                }
-                catch (Exception ex)
-                {
-                    clsDataAccessSettings.PrintExecptionErrorMessage(ex);
-                }
-                finally
-                {
-                    connection.Close();
-                }
+                RowsAffected = command.ExecuteNonQuery();
 
-                return (RowsAffected > 0);
-
-                }
             }
-            return false;
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return (RowsAffected > 0);
+
         }
 
+        static public bool DeleteDoctor(int DoctorID)
+        {
 
+            int RowsAffected = -1;
+            // this function returns true if Rows affected > 0 or false if no RowsAffected
+
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
+
+            string query = @"DELETE Doctors
+                            WHERE DoctorID = @DoctorID;";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@DoctorID", DoctorID);
+
+            try
+            {
+                connection.Open();
+
+                RowsAffected = command.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return (RowsAffected > 0);
+
+        }
+
+        public static DataTable GetAllDoctors()
+        {
+            DataTable dt = new DataTable();
+
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
+
+            string query = @"SELECT   Doctors.DoctorID, Persons.FirstName, Persons.LastName, Persons.DateOfBirth,
+                                        CASE
+                                            WHEN Gender = 0 THEN Female
+                                            WHEN Gender = 1 THEN Male
+                                            ELSE result
+                                        END, Persons.PhoneNumber, Persons.Email, Persons.Password, Persons.Address,Doctors.Specialization
+                                            FROM  Doctors INNER JOIN Persons 
+                                                ON Doctors.PersonID = Persons.PersonID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return dt;
+
+        }
+
+        public static bool IsDoctorExist(int DoctorID)
+        {
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
+
+            // this fuction will returns true when RowsAffected > 0 and flase if not 
+
+            bool isFound = false;
+
+            string query = @"SELECT IsFound=1 FROM Doctors
+                             WHERE DoctorID=@DoctorID";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@DoctorID", DoctorID);
+
+            try
+            {
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+            }
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
     }
 }

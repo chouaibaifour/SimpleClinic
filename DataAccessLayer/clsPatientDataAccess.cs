@@ -13,14 +13,14 @@ namespace DataAccessLayer
     public class clsPatientDataAccess
     {
 
-        static public int PatientToPerson(string Condition)
+        static public int Person(int PatientID)
         {
             int PersonID = -1;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-            string query = @"SELECT PersonID FROM Patients WHERE  @Condition";
+            string query = @"SELECT PersonID FROM Patients WHERE  PatientID = @PatientID";
 
             SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@Condition", Condition);
+            command.Parameters.AddWithValue("@PatientID", PatientID);
 
             try
             {
@@ -32,14 +32,14 @@ namespace DataAccessLayer
                 if (reader.Read())
                 {
 
-                     PersonID = (int)reader["PersonID"];
+                    PersonID = (int)reader["PersonID"];
 
                 }
                 else
 
-                   
 
-                reader.Close();
+
+                    reader.Close();
 
             }
             catch (Exception ex)
@@ -58,10 +58,10 @@ namespace DataAccessLayer
             bool isFound = false;
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-            string query = @"SELECT PatientID, PersonID FROM Patients WHERE PersonID = @PersonID";
+            string query = @"SELECT PatientID, PersonID FROM Patients WHERE PatientID = @PatientID";
 
             SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@PersonID", PersonID);
+            command.Parameters.AddWithValue("@PatientID", PatientID);
 
             try
             {
@@ -100,28 +100,23 @@ namespace DataAccessLayer
 
         }
 
-        static public int AddNewPatient(string FirstName, string LastName, DateTime DateOfBirth,
-            clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address)
+        static public int AddNewPatient(int PersonID)
         {
             // the function will returns PatientID or -1 if not 
-            int PersonID = clsPersonDataAccess.AddNewPerson(FirstName, LastName, DateOfBirth, Gender,
-                PhoneNumber, Password, Email, Address);
 
-            if (PersonID < 1)
-                return -1;
 
             int PatientID = -1;
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
             string query = @"INSERT INTO Patients(PersonID)
-                            VALUES
-                            (@PersonID);
-                               SELECT SCOPE_IDENTITY(); ";
+                               VALUES
+                                  (@PersonID);
+                                       SELECT SCOPE_IDENTITY(); ";
 
             SqlCommand command = new SqlCommand(query, connection);
-
             command.Parameters.AddWithValue("@PersonID", PersonID);
+
 
             try
             {
@@ -148,22 +143,22 @@ namespace DataAccessLayer
 
         }
 
-        static public bool UpdatePatient(int PatientID,int PersonID, string FirstName, string LastName, DateTime DateOfBirth,
-            clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address)
+        static public bool UpdatePatient(int PatientID,int PersonID)
         {
             int RowsAffected = -1;
             // this function returns true if Rows affected > 0 or false if no RowsAffected
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
-            string query = @"UPDATE Persons
+            string query = @"UPDATE Patients
                             SET PersonID = @PersonID                            
-                            WHERE PersonID = @PersonID;";
+                            WHERE PatientID = @PatientID;";
 
             SqlCommand command = new SqlCommand(query, connection);
 
-
             command.Parameters.AddWithValue("@PersonID", PersonID);
+
+            command.Parameters.AddWithValue("@PatientID", PatientID);
 
             try
             {
@@ -180,13 +175,12 @@ namespace DataAccessLayer
                 connection.Close();
             }
 
-            return (RowsAffected > 0)
-                     && 
-                    clsPersonDataAccess.UpdatePerson(PersonID,FirstName,LastName,DateOfBirth,Gender,PhoneNumber,Password,Email,Address);
+            return (RowsAffected > 0);
+                     
 
         }
 
-        static public bool DeletePatient(int PatientID,int PersonID)
+        static public bool DeletePatient(int PatientID)
         {
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
@@ -195,13 +189,11 @@ namespace DataAccessLayer
             int RowsAffected = 0;
 
             string query = @"DELETE Patients
-                                WHERE PatientID=@PatientID;
-                            DELETE Persons
-                                WHERE PersonID=@PersonID;";
+                                WHERE PatientID=@PatientID;";
 
             SqlCommand command = new SqlCommand(query, connection);
 
-            command.Parameters.AddWithValue("@PersonID", PersonID);
+
             command.Parameters.AddWithValue("@PatientID", PatientID);
 
             try

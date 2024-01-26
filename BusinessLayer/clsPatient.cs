@@ -22,7 +22,8 @@ namespace BusinessLayer
         }
 
         private clsPatient(int PatientID, int PersonID, string FirstName, string LastName, DateTime DateOfBirth,
-            enGender Gender, string PhoneNumber, string Password, string Email, string Address) : base(PersonID,FirstName,LastName,DateOfBirth,Gender,PhoneNumber,Password,Email,Address)
+            clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address) 
+            : base(PersonID,FirstName,LastName,DateOfBirth,Gender,PhoneNumber,Password,Email,Address)
         {
             
             this.PatientID = PatientID;
@@ -32,21 +33,19 @@ namespace BusinessLayer
 
         static public new clsPatient Find(int PatientID)
         {
-            string FirstName = "", LastName = "", PhoneNumber = "", Email = "", Password = "", Address = "";
-
-            clsPersonDataAccess.enGender Gender = clsPersonDataAccess.enGender.NotSet;
-
-            DateTime DateOfBirth = DateTime.Now;
 
             int PersonID = -1;
 
             if (clsPatientDataAccess.GetPatientByID(ref PatientID, ref PersonID))
-            {
-                if (clsPersonDataAccess.GetPersonByID(ref PersonID, ref FirstName, ref LastName, ref DateOfBirth, ref Gender,
-                ref PhoneNumber, ref Password, ref Email, ref Address))
+            {   clsPerson person = clsPerson.Find(PersonID);
+                if (person != null)
                 {
-                    return new clsPatient(PatientID, PersonID, FirstName, LastName, DateOfBirth,
-                        (enGender)Gender, PhoneNumber, Password, Email, Address);
+                   
+                    clsPatient patient = (clsPatient)person;
+                    patient.PatientID = PatientID;
+
+                    return new clsPatient(patient.PatientID, patient.PersonID, patient.FirstName, patient.LastName,
+                        patient.DateOfBirth, patient.Gender, patient.PhoneNumber, patient.Password, patient.Email, patient.Address);
                 }
                 else
                 {
@@ -59,15 +58,15 @@ namespace BusinessLayer
 
          private bool _AddNewPatient()
         {
-            this.PatientID = clsPatientDataAccess.AddNewPatient(FirstName, LastName, DateOfBirth,
-                (clsPersonDataAccess.enGender)Gender, PhoneNumber, Password, Email, Address);
+            base.Save();
+            this.PatientID = clsPatientDataAccess.AddNewPatient(base.PersonID);
                 return (this.PatientID!=0); 
         }
 
         private bool _UpdatePatient()
         {
-            return clsPatientDataAccess.UpdatePatient(PatientID, PersonID, FirstName, LastName, DateOfBirth, 
-                (clsPersonDataAccess.enGender)Gender, PhoneNumber, Password, Email, Address);
+            base.Save();
+            return clsPatientDataAccess.UpdatePatient(PatientID, base.PersonID);
         }
 
         public new bool Save()
@@ -93,12 +92,14 @@ namespace BusinessLayer
             return false;
         }
 
-        public  bool DeletePatient()
+        static public  bool DeletePatient(int PatientID)
         {
-            return clsPatientDataAccess.DeletePatient(PatientID, PersonID);
+            int PersonID = clsPatientDataAccess.Person(PatientID);
+             clsPatientDataAccess.DeletePatient(PatientID);
+            return DeletePerson(PersonID);
         }
 
-        public DataTable GetAllPatients()
+        static public DataTable GetAllPatients()
         {
             return clsPatientDataAccess.GetAllPatients();
         }
@@ -107,6 +108,7 @@ namespace BusinessLayer
         {
             return clsPatientDataAccess.IsPatientExist(Patient);
         }
+
 
     }
 }
