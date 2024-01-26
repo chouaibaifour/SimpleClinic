@@ -10,15 +10,15 @@ namespace DataAccessLayer
 {
     static public class clsPersonDataAccess
     {
-        public enum enGender { Female=0,Male=1};
+        public enum enGender { Female=0,Male=1,NotSet=2 };
 
         static public bool GetPersonByID(ref int PersonID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref enGender Gender, ref string PhoneNumber, ref string Email, ref string Address)
+            ref enGender Gender, ref string PhoneNumber,ref string Password, ref string Email, ref string Address)
         {
             bool isFound = false;
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
-            string query = @"SELECT PersonID,FirstName,LastName,DateOfBirth,
+            string query = @"SELECT PersonID,FirstName,LastName,DateOfBirth,Password
                                     Gender,PhoneNumber,Email,Address FROM Persons WHERE PersonID = @PersonID";
 
             SqlCommand command = new SqlCommand(query,connection);
@@ -48,6 +48,8 @@ namespace DataAccessLayer
                     Gender = (enGender)reader["Gender"];
 
                     PhoneNumber = (string)reader["PhoneNumber"];
+
+                    Password = (string)reader["Password"];
 
                     Email = (string)reader["Email"];
 
