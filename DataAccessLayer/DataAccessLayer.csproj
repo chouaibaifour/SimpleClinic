@@ -46,6 +46,7 @@
     <Compile Include="clsParameters.cs" />
     <Compile Include="clsPatientDataAccess.cs" />
     <Compile Include="clsPaymentDataAccess.cs" />
+    <Compile Include="clsPaymentMethodDataAccess.cs" />
     <Compile Include="clsPersonDataAccess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
