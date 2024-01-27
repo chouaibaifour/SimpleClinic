@@ -15,7 +15,7 @@ namespace BusinessLayer
         public int DoctorID { get; set; }
         public string Specialization {  get; set; }
 
-        clsDoctor() : base()
+        public clsDoctor() : base()
         {
             this.DoctorID = -1;
             this.Mode = enMode.AddNew;

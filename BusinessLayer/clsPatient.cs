@@ -16,7 +16,7 @@ namespace BusinessLayer
         enMode Mode = enMode.AddNew;
         public int PatientID { get; set; }
 
-        clsPatient() : base()
+        public clsPatient() : base()
         {
             this.PatientID = -1;
             this.Mode = enMode.AddNew;

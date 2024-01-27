@@ -50,7 +50,7 @@ namespace BusinessLayer
         public int PaymentID { get; set; }
 
 
-        clsAppointment()
+        public clsAppointment()
         {
             AppointmentID = -1;
 
