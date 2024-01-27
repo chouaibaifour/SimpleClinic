@@ -283,5 +283,35 @@ namespace DataAccessLayer
             return dt;
         }
 
+        static public bool isPaymentExists(int PaymentID)
+        {
+            // this fuction will returns true when RowsAffected > 0 and flase if not 
+            bool isFound = false;
+
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
+            string query = @"SELECT IsFound = 1 FROM Payments
+                             WHERE PaymentID = @PaymentID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@PaymentID", PaymentID);
+
+            try
+            {
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+            }
+            catch (Exception ex)
+            {
+                clsDataAccessSettings.PrintExecptionErrorMessage(ex);
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
     }
 }
