@@ -24,7 +24,7 @@ namespace BusinessLayer
         }
 
         private clsDoctor(int PatientID, int PersonID, string FirstName, string LastName, DateTime DateOfBirth,
-            clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address, string specialization)
+            enGender Gender, string PhoneNumber, string Password, string Email, string Address, string specialization)
             : base(PersonID, FirstName, LastName, DateOfBirth, Gender, PhoneNumber, Password, Email, Address)
         {
 

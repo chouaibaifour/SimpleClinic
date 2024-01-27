@@ -33,9 +33,7 @@ namespace DataAccessLayer
                     PersonID = (int)reader["PersonID"];
 
                 }
-                else
-
-
+                
 
                     reader.Close();
 
@@ -287,6 +285,8 @@ namespace DataAccessLayer
 
                 SqlDataReader reader = command.ExecuteReader();
                 isFound = reader.HasRows;
+
+                reader.Close();
             }
             catch (Exception ex)
             {

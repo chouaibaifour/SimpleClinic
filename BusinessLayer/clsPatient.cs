@@ -10,6 +10,8 @@ namespace BusinessLayer
 {
     public class clsPatient : clsPerson
     {
+        
+
         private enum enMode { AddNew = 1, Update = 2 };
         enMode Mode = enMode.AddNew;
         public int PatientID { get; set; }
@@ -22,7 +24,7 @@ namespace BusinessLayer
         }
 
         private clsPatient(int PatientID, int PersonID, string FirstName, string LastName, DateTime DateOfBirth,
-            clsPersonDataAccess.enGender Gender, string PhoneNumber, string Password, string Email, string Address) 
+            enGender Gender, string PhoneNumber, string Password, string Email, string Address) 
             : base(PersonID,FirstName,LastName,DateOfBirth,Gender,PhoneNumber,Password,Email,Address)
         {
             

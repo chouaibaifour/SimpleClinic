@@ -13,12 +13,12 @@ namespace BusinessLayer
     {
         private enum enMode { AddNew,Update};
         private enMode Mode = enMode.AddNew;
-       
+        public enum enGender { Female = 0, Male = 1, NotSet = 2 };
         public int PersonID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth {  get; set; }
-        public clsPersonDataAccess.enGender Gender { get; set; }
+        public enGender Gender { get; set; }
         public string PhoneNumber {  get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
@@ -36,7 +36,7 @@ namespace BusinessLayer
 
             DateOfBirth = DateTime.Now;
 
-            Gender = clsPersonDataAccess.enGender.NotSet;
+            Gender = enGender.NotSet;
 
             PhoneNumber = "";
 
@@ -46,7 +46,7 @@ namespace BusinessLayer
 
         }
 
-        protected clsPerson(int PersonID,string FistName,string LastName,DateTime DateOfBirth, clsPersonDataAccess.enGender Gender,string PhoneNumber
+        protected clsPerson(int PersonID,string FistName,string LastName,DateTime DateOfBirth, enGender Gender,string PhoneNumber
             ,string Password,string Email,string Address)
         {
 
@@ -73,7 +73,7 @@ namespace BusinessLayer
           
         private bool _AddNewPerson()
         {
-            this.PersonID = clsPersonDataAccess.AddNewPerson(this.FirstName,this.LastName,this.DateOfBirth,this.Gender
+            this.PersonID = clsPersonDataAccess.AddNewPerson(this.FirstName,this.LastName,this.DateOfBirth,(byte)this.Gender
                 ,this.PhoneNumber,this.Password, this.Email, this.Address);
 
             return (this.PersonID!=-1);
@@ -81,7 +81,7 @@ namespace BusinessLayer
 
         private bool _UpdatePerson() 
         {
-            return clsPersonDataAccess.UpdatePerson(this.PersonID, this.FirstName, this.LastName, this.DateOfBirth, this.Gender
+            return clsPersonDataAccess.UpdatePerson(this.PersonID, this.FirstName, this.LastName, this.DateOfBirth,(byte) this.Gender
                 , this.PhoneNumber, this.Password, this.Email, this.Address);
         }
 
@@ -111,7 +111,7 @@ namespace BusinessLayer
         static public clsPerson Find(int PersonID)
         {
             string FirstName = "", LastName = "", PhoneNumber = "", Email = "", Password = "", Address = "";
-            clsPersonDataAccess.enGender  Gender = clsPersonDataAccess.enGender.NotSet;
+            byte  Gender = (byte)enGender.NotSet;
             DateTime DateOfBirth = DateTime.Now;
             
 
@@ -119,7 +119,7 @@ namespace BusinessLayer
                 ref PhoneNumber,ref  Password, ref Email,ref Address))
             {
                 return new clsPerson(PersonID, FirstName, LastName, DateOfBirth, 
-                    Gender, PhoneNumber, Password, Email, Address);
+                    (enGender)Gender, PhoneNumber, Password, Email, Address);
             }
             else
             { 
@@ -137,9 +137,9 @@ namespace BusinessLayer
             return clsPersonDataAccess.GetAllPersons();
         }
         
-        static public bool IsPersonExist(int PersonID)
+        static public bool IsPersonExists(int PersonID)
         {
-            return clsPersonDataAccess.IsPersonExist(PersonID);
+            return clsPersonDataAccess.IsPersonExists(PersonID);
         }
     }
 }

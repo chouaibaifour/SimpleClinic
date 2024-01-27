@@ -10,10 +10,9 @@ namespace DataAccessLayer
 {
     static public class clsPersonDataAccess
     {
-        public enum enGender { Female=0,Male=1,NotSet=2 };
-
+       
         static public bool GetPersonByID(ref int PersonID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref enGender Gender, ref string PhoneNumber,ref string Password, ref string Email, ref string Address)
+            ref byte Gender, ref string PhoneNumber,ref string Password, ref string Email, ref string Address)
         {
             bool isFound = false;
 
@@ -45,7 +44,7 @@ namespace DataAccessLayer
 
                     DateOfBirth = (DateTime)reader["DateOfBirth"];
 
-                    Gender = (enGender)reader["Gender"];
+                    Gender = (byte)reader["Gender"];
 
                     PhoneNumber = (string)reader["PhoneNumber"];
 
@@ -70,6 +69,7 @@ namespace DataAccessLayer
             }
             catch (Exception ex)
             {
+                isFound = false;
                 clsDataAccessSettings.PrintExecptionErrorMessage(ex);
             }
             finally
@@ -84,7 +84,7 @@ namespace DataAccessLayer
         }
 
         static public bool GetPersonByEmail(ref int PersonID, ref string FirstName, ref string LastName, ref DateTime DateOfBirth,
-            ref enGender Gender, ref string PhoneNumber, ref string Email, ref string Address)
+            ref byte Gender, ref string PhoneNumber, ref string Email, ref string Address)
         {
             bool isFound = false;
 
@@ -116,7 +116,7 @@ namespace DataAccessLayer
 
                     DateOfBirth = (DateTime)reader["DateOfBirth"];
 
-                    Gender = (enGender)reader["Gender"];
+                    Gender = (byte)reader["Gender"];
 
                     PhoneNumber = (string)reader["PhoneNumber"];
 
@@ -140,6 +140,7 @@ namespace DataAccessLayer
             }
             catch (Exception ex)
             {
+                isFound = false;
                 clsDataAccessSettings.PrintExecptionErrorMessage(ex);
             }
             finally
@@ -154,7 +155,7 @@ namespace DataAccessLayer
         }
 
         static public int AddNewPerson( string FirstName, string LastName, DateTime DateOfBirth,
-            enGender Gender, string PhoneNumber,string Password, string Email, string Address)
+            byte Gender, string PhoneNumber,string Password, string Email, string Address)
         {
             // the function will returns PersonID or -1 if not 
             int PersonID = -1;
@@ -221,7 +222,7 @@ namespace DataAccessLayer
         }
 
         static public bool UpdatePerson(int PersonID, string FirstName, string LastName, DateTime DateOfBirth,
-            enGender Gender, string PhoneNumber, string Password, string Email, string Address)
+            byte Gender, string PhoneNumber, string Password, string Email, string Address)
         {
             int RowsAffected = -1;
             // this function returns true if Rows affected > 0 or false if no RowsAffected
@@ -355,7 +356,7 @@ namespace DataAccessLayer
 
         }
 
-        public static bool IsPersonExist(int PersonID)
+        public static bool IsPersonExists(int PersonID)
         {
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
@@ -375,9 +376,12 @@ namespace DataAccessLayer
 
                 SqlDataReader reader = command.ExecuteReader();
                 isFound = reader.HasRows;
+
+                reader.Close();
             }
             catch (Exception ex)
             {
+                isFound = false;
                 clsDataAccessSettings.PrintExecptionErrorMessage(ex);
             }
             finally
@@ -407,9 +411,11 @@ namespace DataAccessLayer
 
                 SqlDataReader reader = command.ExecuteReader();
                 isFound = reader.HasRows;
+                reader.Close();
             }
             catch (Exception ex)
             {
+                isFound = false;
                 clsDataAccessSettings.PrintExecptionErrorMessage(ex);
             }
             finally
