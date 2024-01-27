@@ -18,7 +18,7 @@ namespace DataAccessLayer
 
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.connectionString);
 
-            string query = @"SELECT AppointmentID FROM Appointments
+            string query = @"SELECT PatientID FROM Appointments
 		                    WHERE AppointmentID = @AppointmentID;";
 
             SqlCommand command = new SqlCommand(query, connection);
@@ -33,7 +33,7 @@ namespace DataAccessLayer
                 if (reader.Read())
                 {
                     
-                    PatientID = (int)reader["AppointmentID"];
+                    PatientID = (int)reader["PatientID"];
                 }
 
                 reader.Close();

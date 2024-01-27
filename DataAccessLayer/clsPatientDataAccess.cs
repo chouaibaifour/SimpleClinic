@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer
 {
-    public class clsPatientDataAccess
+    static public class clsPatientDataAccess
     {
 
         static public int Person(int PatientID)
@@ -85,6 +85,7 @@ namespace DataAccessLayer
             }
             catch (Exception ex)
             {
+                isFound = false;
                 clsDataAccessSettings.PrintExecptionErrorMessage(ex);
             }
             finally
