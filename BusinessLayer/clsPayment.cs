@@ -14,7 +14,7 @@ namespace BusinessLayer
         enMode Mode = enMode.AddNew;
         public int PaymentID { get; set; }
         public DateTime PaymentDate { get; set; }
-        public int PaymentMethodID { get; set; }
+        public clsPaymentMethod PaymentMethod { get; set; }
         public decimal AmoundPaid { get; set; }
         public string AdditionalNotes { get; set; }
 
@@ -24,7 +24,7 @@ namespace BusinessLayer
 
             PaymentDate = DateTime.Now;
 
-            PaymentMethodID = -1;
+            PaymentMethod = null;
 
             AmoundPaid = -1;
 
@@ -33,7 +33,7 @@ namespace BusinessLayer
             Mode = enMode.AddNew;
         }
 
-        private clsPayment( int PaymentID,DateTime PaymentDate, int PaymentMethodID, decimal AmoundPaid, string AdditionalNotes)
+        private clsPayment( int PaymentID,DateTime PaymentDate, clsPaymentMethod PaymentMethod, decimal AmoundPaid, string AdditionalNotes)
         {
             this.Mode = enMode.Update;
 
@@ -41,7 +41,7 @@ namespace BusinessLayer
 
             this.PaymentDate = PaymentDate;
 
-            this.PaymentMethodID = PaymentMethodID;
+            this.PaymentMethod = PaymentMethod;
 
             this.AmoundPaid = AmoundPaid;
 
@@ -61,7 +61,8 @@ namespace BusinessLayer
 
             if (clsPaymentDataAccess.GetPaymentByID(ref PaymentID, ref PaymentDate, ref PaymentMethodID, ref AmoundPaid, ref AdditionalNotes))
 
-                return new clsPayment(PaymentID, PaymentDate, PaymentMethodID, AmoundPaid, AdditionalNotes);
+
+                return new clsPayment(PaymentID, PaymentDate,clsPaymentMethod.Find( PaymentMethodID), AmoundPaid, AdditionalNotes);
 
             else
 
@@ -71,7 +72,7 @@ namespace BusinessLayer
 
         private bool _AddNewPayment()
         {
-            this.PaymentID = clsPaymentDataAccess.AddNewPayment(PaymentDate, PaymentMethodID,AmoundPaid,AdditionalNotes);
+            this.PaymentID = clsPaymentDataAccess.AddNewPayment(PaymentDate, PaymentMethod.PaymentMethodID,AmoundPaid,AdditionalNotes);
 
             return (this.PaymentID != -1);
 
@@ -80,7 +81,7 @@ namespace BusinessLayer
         private bool _UpdatePayment()
         {
 
-            return clsPaymentDataAccess.UpdatePayment(PaymentID,PaymentDate,PaymentMethodID,AmoundPaid,AdditionalNotes);
+            return clsPaymentDataAccess.UpdatePayment(PaymentID,PaymentDate,PaymentMethod.PaymentMethodID,AmoundPaid,AdditionalNotes);
 
         }
 

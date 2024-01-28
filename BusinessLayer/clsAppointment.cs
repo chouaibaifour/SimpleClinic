@@ -37,9 +37,9 @@ namespace BusinessLayer
 
         public int AppointmentID { get; set; }
 
-        public int PatientID { get; set; }
+        public clsPatient Patient { get; set; }
 
-        public int DoctorID { get; set; }
+        public clsDoctor Doctor { get; set; }
 
         public enAppointmentStatus AppointmentStatus { get; set;}
 
@@ -47,16 +47,15 @@ namespace BusinessLayer
         
         public int MedicalRecord {  get; set; }
 
-        public int PaymentID { get; set; }
-
+        public clsPayment Payment { get; set; }
 
         public clsAppointment()
         {
             AppointmentID = -1;
 
-            PatientID = -1;
+            Patient = null;
 
-            DoctorID = -1;
+            Doctor = null;
 
             AppointmentStatus = enAppointmentStatus.NotSet;
 
@@ -64,21 +63,21 @@ namespace BusinessLayer
 
             MedicalRecord = -1;
 
-            PaymentID = -1;
+            Payment = null;
 
             Mode = enMode.AddNew;
 
         }
 
-        private clsAppointment( int AppointmentID, int PatientID, int DoctorID, enAppointmentStatus AppointmentStatus,
-            DateTime AppointmentDateTime, int MedicalRecord, int PaymentID)
+        private clsAppointment( int AppointmentID, clsPatient Patient, clsDoctor Doctor, enAppointmentStatus AppointmentStatus,
+            DateTime AppointmentDateTime, int MedicalRecord, clsPayment Payment)
         {
            
             this.AppointmentID = AppointmentID;
 
-            this.PatientID = PatientID;
+            this.Patient = Patient;
 
-            this.DoctorID = DoctorID;
+            this.Doctor = Doctor;
 
             this.AppointmentStatus = AppointmentStatus;
 
@@ -86,7 +85,7 @@ namespace BusinessLayer
 
             this.MedicalRecord = MedicalRecord;
 
-            this.PaymentID = PaymentID;
+            this.Payment = Payment;
 
             this.Mode = enMode.Update;
         }
@@ -100,24 +99,24 @@ namespace BusinessLayer
             if(clsAppointmentDataAccess.GetAppointmentByID(ref AppointmentID,ref PatientID,ref DoctorID,ref AppointmentDateTime,
                 ref AppointmentStatus,ref MedicalRecordID,ref PaymentID))
             {
-                return new clsAppointment(AppointmentID, PatientID, DoctorID, (enAppointmentStatus)AppointmentStatus, AppointmentDateTime,
-                    MedicalRecordID, PaymentID);
+                return new clsAppointment(AppointmentID, clsPatient.Find(PatientID), clsDoctor.Find(DoctorID), (enAppointmentStatus)AppointmentStatus,
+                    AppointmentDateTime, MedicalRecordID, clsPayment.Find(PaymentID));
             }
             return null;
         }
 
         private bool _AddNewAppointment()
         {
-            this.AppointmentID = clsAppointmentDataAccess.AddNewAppointment(this.PatientID, this.DoctorID,
-                this.AppointmentDateTime, (byte)this.AppointmentStatus, this.MedicalRecord, this.PaymentID);
+            this.AppointmentID = clsAppointmentDataAccess.AddNewAppointment(Patient.PatientID, Doctor.DoctorID,
+                AppointmentDateTime, (byte)AppointmentStatus, MedicalRecord, Payment.PaymentID);
             return (this.AppointmentID != -1);
         }
 
         private bool _UpdateAppointment()
         {
 
-            return clsAppointmentDataAccess.UpdateAppointment(this.AppointmentID, this.PatientID, this.DoctorID,
-                this.AppointmentDateTime, (byte)this.AppointmentStatus, this.MedicalRecord, this.PaymentID);
+            return clsAppointmentDataAccess.UpdateAppointment(AppointmentID, Patient.PatientID, Doctor.DoctorID,
+                AppointmentDateTime, (byte)AppointmentStatus, MedicalRecord, Payment.PaymentID);
 
         }
 
@@ -141,11 +140,13 @@ namespace BusinessLayer
                     return _UpdateAppointment();
 
             }
+            
             return false;
         }
 
         static public bool DeleteAppointment(int AppointmentID)
         {
+            
             return clsAppointmentDataAccess.DeleteAppointment(AppointmentID);
         }
 
